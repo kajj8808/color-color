@@ -1,5 +1,5 @@
-import sharp from "sharp";
-import { linearRgbToXyz, rgbToLab } from "./rgbToLab";
+import { labToRgb, rgbToLab } from "./conversions/rgbToLab";
+
 async function main() {
   /*  const url =
     "https://i.scdn.co/image/ab67616d00001e024bbc4baec76f21f341fcf775";
@@ -14,5 +14,8 @@ async function main() {
   console.log(data); */
 }
 
-console.log(rgbToLab({ r: 120, g: 150, b: 120 }));
+const labColor = rgbToLab({ r: 120, g: 150, b: 120 });
+console.log(labColor);
+console.log(labToRgb(labColor));
+
 main();
