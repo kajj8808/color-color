@@ -21,7 +21,7 @@ console.log(labColor);
 console.log(labToRgb(labColor));
  */
 
-const 빨강RGB = { r: 255, g: 0, b: 0 };
+/* const 빨강RGB = { r: 255, g: 0, b: 0 };
 const 어두운빨강RGB = { r: 230, g: 10, b: 10 };
 const 파랑RGB = { r: 0, g: 0, b: 255 };
 const 오랜지RGB = { r: 255, g: 120, b: 0 };
@@ -48,3 +48,4 @@ console.log(`빨강 vs 파랑: ${rgbDistance(빨강RGB, 파랑RGB)}`);
 console.log(`빨강 vs 오랜지: ${rgbDistance(빨강RGB, 오랜지RGB)}`);
 console.log(`빨강 vs 노랑: ${rgbDistance(빨강RGB, 노란색RGB)}`);
 console.log(`빨강 vs 보라: ${rgbDistance(빨강RGB, 보라RGB)}`);
+ */
