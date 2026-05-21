@@ -1,9 +1,12 @@
 import { labToRgb, rgbToLab } from "./conversions/rgb-to-lab";
 import { deltaE76 } from "./distance/delta-e-76";
 import { rgbDistance } from "./distance/rgb-distance";
+import { createColorCandidates } from "./histogram/create-color-candidates";
+
+import sharp from "sharp";
 
 async function main() {
-  /*  const url =
+  const url =
     "https://i.scdn.co/image/ab67616d00001e024bbc4baec76f21f341fcf775";
   const response = await fetch(url);
   const buffer = await response.arrayBuffer();
@@ -13,9 +16,9 @@ async function main() {
     .removeAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  console.log(data); */
+  console.log(data);
 }
-
+main();
 /* const labColor = rgbToLab({ r: 120, g: 151, b: 120 });
 console.log(labColor);
 console.log(labToRgb(labColor));
@@ -49,3 +52,10 @@ console.log(`빨강 vs 오랜지: ${rgbDistance(빨강RGB, 오랜지RGB)}`);
 console.log(`빨강 vs 노랑: ${rgbDistance(빨강RGB, 노란색RGB)}`);
 console.log(`빨강 vs 보라: ${rgbDistance(빨강RGB, 보라RGB)}`);
  */
+
+const pixels = new Uint8ClampedArray([
+  255, 0, 0, 255, 254, 1, 0, 255, 250, 3, 2, 255, 0, 0, 255, 255,
+]);
+
+console.log(pixels);
+// createColorCandidates(pixels, {});

@@ -2,7 +2,7 @@ import { getImageAverageColor } from "./utils/image";
 
 async function demo() {
   const imageUrl =
-    "https://i.scdn.co/image/ab67616d00001e024bbc4baec76f21f341fcf775";
+    "https://i.scdn.co/image/ab67616d0000b27315b8cef21bf4482d56c15614";
 
   try {
     const hexColor = await getImageAverageColor(imageUrl);
