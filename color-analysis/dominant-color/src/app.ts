@@ -1,3 +1,4 @@
+import { rgbToHsl } from "./conversions/rgb-to-hsl";
 import { labToRgb, rgbToLab } from "./conversions/rgb-to-lab";
 import { deltaE76 } from "./distance/delta-e-76";
 import { rgbDistance } from "./distance/rgb-distance";
@@ -18,7 +19,7 @@ async function main() {
     .toBuffer({ resolveWithObject: true });
   console.log(data);
 }
-main();
+// main();
 /* const labColor = rgbToLab({ r: 120, g: 151, b: 120 });
 console.log(labColor);
 console.log(labToRgb(labColor));
@@ -52,10 +53,16 @@ console.log(`빨강 vs 오랜지: ${rgbDistance(빨강RGB, 오랜지RGB)}`);
 console.log(`빨강 vs 노랑: ${rgbDistance(빨강RGB, 노란색RGB)}`);
 console.log(`빨강 vs 보라: ${rgbDistance(빨강RGB, 보라RGB)}`);
  */
-
+/* 
 const pixels = new Uint8ClampedArray([
   255, 0, 0, 255, 254, 1, 0, 255, 250, 3, 2, 255, 0, 0, 255, 255,
 ]);
 
 console.log(pixels);
 // createColorCandidates(pixels, {});
+ */
+console.log(rgbToHsl({ r: 255, g: 0, b: 0 }));
+console.log(rgbToHsl({ r: 0, g: 255, b: 0 }));
+console.log(rgbToHsl({ r: 0, g: 0, b: 255 }));
+console.log(rgbToHsl({ r: 255, g: 255, b: 255 }));
+console.log(rgbToHsl({ r: 128, g: 128, b: 128 }));
