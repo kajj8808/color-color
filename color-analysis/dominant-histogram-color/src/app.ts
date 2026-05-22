@@ -2,23 +2,54 @@ import { rgbToHsl } from "./conversions/rgb-to-hsl";
 import { labToRgb, rgbToLab } from "./conversions/rgb-to-lab";
 import { deltaE76 } from "./distance/delta-e-76";
 import { rgbDistance } from "./distance/rgb-distance";
+import { isBackgroundColorCandidate } from "./filters/is-background-color-candidate";
 import { createColorCandidates } from "./histogram/create-color-candidates";
 
 import sharp from "sharp";
+import {
+  createBackgroundColorCandidates,
+  scoreBackgroundColorCandidates,
+} from "./selection/create-background-color-candidates";
 
 async function main() {
   const url =
-    "https://i.scdn.co/image/ab67616d00001e024bbc4baec76f21f341fcf775";
+    "https://i.scdn.co/image/ab67616d0000b2730bcf0dd5895d2d7b2b2fc6f9";
+
   const response = await fetch(url);
   const buffer = await response.arrayBuffer();
+
   const image = sharp(Buffer.from(buffer));
 
   const { data, info } = await image
     .removeAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  console.log(data);
+
+  const colorCandidates = createColorCandidates(data, {
+    channels: info.channels as 3 | 4,
+    bucketSize: 16,
+  });
+
+  const backgroundCandidates = createBackgroundColorCandidates(colorCandidates);
+
+  const scoredCandidates = scoreBackgroundColorCandidates(backgroundCandidates);
+
+  const mainBackgroundColor = scoredCandidates[0];
+
+  console.log({
+    image: {
+      width: info.width,
+      height: info.height,
+      channels: info.channels,
+    },
+    colorCandidates: colorCandidates.slice(0, 10),
+    backgroundCandidates: backgroundCandidates.slice(0, 10),
+    scoredCandidates: scoredCandidates.slice(0, 10),
+    mainBackgroundColor,
+  });
 }
+
+main();
 // main();
 /* const labColor = rgbToLab({ r: 120, g: 151, b: 120 });
 console.log(labColor);
@@ -64,15 +95,3 @@ console.log(rgbToHsl({ r: 0, g: 0, b: 255 }));
 console.log(rgbToHsl({ r: 255, g: 255, b: 255 }));
 console.log(rgbToHsl({ r: 128, g: 128, b: 128 }));
  */
-
-const result = createColorCandidates(
-  new Uint8Array([255, 0, 0, 254, 1, 0, 250, 3, 2, 0, 0, 255]),
-  {
-    channels: 3,
-    bucketSize: 16,
-  },
-);
-
-console.log(result);
-
-// const usefulCandidates;
