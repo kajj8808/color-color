@@ -133,3 +133,79 @@ function shouldKeepPixel(color: RGB, options: Required<KMeansPaletteOptions>) {
 
   return true;
 }
+
+/**
+ * 이미지를 읽고 k-means 에 넣을 색상 목록을 만듭니다.
+ *
+ * 1. sharp로 이미지를 resize
+ * 2. alpha가 있으면 흰색 배경으로 flatten
+ * 3. raw RGB pixel을 읽음.
+ * 4. 너무 흰색/검정에 가까운 pixel은 제거
+ * 5. RGB를 quantize해서 비슷한 색끼리 묶음
+ * 6. 같은 색이 몇 번 나왔는지 weight로 저장 (quantize 과정을 통해 쉬워짐)
+ */
+export async function loadWeightedColors(
+  imagePath: string,
+  options: Required<KMeansPaletteOptions> = DEFAULT_OPTIONS,
+) {
+  // 비율은 다소 망가져도 분석에는 상관 x
+  // 이후 배경을 흰색으로 채우고(투명도도 사용해서 색상 결정), 이렇게 되면 투명도 정보는 의미가 없어지기에.
+  const { data, info } = await sharp(imagePath)
+    .resize(options.size, options.size, {
+      fit: "cover",
+    })
+    .flatten({
+      background: {
+        r: 255,
+        g: 255,
+        b: 255,
+      },
+    })
+    .removeAlpha()
+    .raw()
+    .toBuffer({
+      resolveWithObject: true,
+    });
+  const pixels = new Uint8Array(data);
+  const channels = info.channels;
+
+  const totalPixels = info.width * info.height;
+  let keptPixels = 0;
+
+  const colorMap = new Map<string, { color: RGB; weight: number }>();
+
+  for (let i = 0; i < pixels.length; i += channels) {
+    const rawColor: RGB = {
+      r: pixels[i],
+      g: pixels[i + 1],
+      b: pixels[i + 2],
+    };
+
+    if (!shouldKeepPixel(rawColor, options)) {
+      continue;
+    }
+
+    keptPixels += 1;
+
+    const color: RGB = {
+      r: quantizeChannel(rawColor.r, options.quantizeStep),
+      g: quantizeChannel(rawColor.g, options.quantizeStep),
+      b: quantizeChannel(rawColor.b, options.quantizeStep),
+    };
+
+    const key = `${color.r}.${color.g}.${color.b}`;
+    const previous = colorMap.get(key);
+
+    if (previous) {
+      previous.weight += 1;
+    } else {
+      colorMap.set(key, { color, weight: 1 });
+    }
+  }
+
+  return {
+    points: [...colorMap.values()],
+    totalPixels,
+    keptPixels,
+  };
+}

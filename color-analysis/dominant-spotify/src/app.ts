@@ -1,9 +1,8 @@
-import { hslToRgb, parseHexRgb, rgbToHsl, toHexRgb } from "./color-space";
-import { copyColor } from "./palette";
+import path from "node:path";
 
-/* console.log(parseHexRgb("#eb4034"));
+import { copyColor, loadWeightedColors } from "./palette";
+import { hslToRgb, rgbToHsl } from "./color-space";
 
-console.log(toHexRgb({ r: 235, g: 64, b: 52 })); */
 const hsl = rgbToHsl({ r: 235, g: 64, b: 52 });
 console.log(hsl);
 console.log(hslToRgb(hsl));
@@ -15,3 +14,9 @@ sampleColor_copy.r = 200;
 
 console.log(sampleColor);
 console.log(sampleColor_copy);
+
+const imagePath = path.join(__dirname, "../sample", "image.jpg");
+(async () => {
+  const colors = await loadWeightedColors(imagePath);
+  console.log(colors.points[1]);
+})();
