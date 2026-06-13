@@ -67,7 +67,7 @@ export function luma(color: RGB) {
   return 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
 }
 
-export function saturation(color: RGB) {
+export function rgbSaturation(color: RGB) {
   const max = Math.max(color.r, color.g, color.b);
   const min = Math.min(color.r, color.g, color.b);
 
