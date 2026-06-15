@@ -1,6 +1,11 @@
 import path from "node:path";
 
-import { copyColor, loadWeightedColors } from "./palette";
+import {
+  copyColor,
+  extractKMeansPalette,
+  loadWeightedColors,
+  pickInitialCentroids,
+} from "./palette";
 import { hslToRgb, rgbToHsl } from "./color-space";
 
 const hsl = rgbToHsl({ r: 235, g: 64, b: 52 });
@@ -15,8 +20,25 @@ sampleColor_copy.r = 200;
 console.log(sampleColor);
 console.log(sampleColor_copy);
 
-const imagePath = path.join(__dirname, "../sample", "image.jpg");
-(async () => {
-  const colors = await loadWeightedColors(imagePath);
-  console.log(colors.points[1]);
+/* (async () => {
+  const result = await loadWeightedColors(imagePath);
+
+  const centroids = pickInitialCentroids(result.points, 5);
+  console.log(centroids);
 })();
+ */
+
+async function main() {
+  const imagePath = path.join(__dirname, "../sample", "image.jpg");
+
+  const palette = await extractKMeansPalette(imagePath);
+
+  console.table(
+    palette.map((swatch, index) => ({
+      index,
+      hex: swatch.hex,
+      score: swatch.score,
+    })),
+  );
+}
+main();
