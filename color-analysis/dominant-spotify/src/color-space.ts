@@ -32,6 +32,10 @@ export function clamp({
   return Math.max(min, Math.min(max, value));
 }
 
+export function clamp01(value: number): number {
+  return Math.min(Math.max(0, value), 1);
+}
+
 export function clampByte(value: number) {
   return Math.round(clamp({ value, max: 255, min: 0 }));
 }

@@ -48,6 +48,7 @@ async function main() {
     candidates.map((candidate, index) => ({
       index,
       type: candidate.type,
+      family: candidate.family,
       sourceHex: candidate.sourceHex,
       sourceHexes: candidate.sourceHexes.join(", "),
       baseHex: candidate.baseHex,
