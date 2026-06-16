@@ -54,16 +54,23 @@ export function toHexRgba(color: RGB) {
 }
 
 export function parseHexRgb(hex: string): RGB {
-  const normalized = hex.trim().replace("#", ""); // #eb4034 -> eb4034
+  const value = hex.trim().replace(/^#/, "");
 
-  if (normalized.length !== 6) {
+  /**
+   * 지원:
+   * RRGGBB
+   * RRGGBBAA
+   *
+   * validation에서는 alpha를 비교하지 않고 RGB만 비교합니다.
+   */
+  if (!/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(value)) {
     throw new Error(`Invalid hex color: ${hex}`);
   }
 
   return {
-    r: Number.parseInt(normalized.slice(0, 2), 16),
-    g: Number.parseInt(normalized.slice(2, 4), 16),
-    b: Number.parseInt(normalized.slice(4, 6), 16),
+    r: Number.parseInt(value.slice(0, 2), 16),
+    g: Number.parseInt(value.slice(2, 4), 16),
+    b: Number.parseInt(value.slice(4, 6), 16),
   };
 }
 

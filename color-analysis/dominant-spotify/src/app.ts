@@ -8,6 +8,7 @@ import {
 } from "./palette";
 import { hslToRgb, rgbToHsl } from "./color-space";
 import { createThemeCandidatesFromPalette } from "./theme-candidates";
+import { resolveThemeCandidate } from "./resolver";
 
 const hsl = rgbToHsl({ r: 235, g: 64, b: 52 });
 console.log(hsl);
@@ -30,7 +31,7 @@ console.log(sampleColor_copy);
  */
 
 async function main() {
-  const imagePath = path.join(__dirname, "../sample", "image.jpg");
+  const imagePath = path.join(__dirname, "../sample", "image_2.jpg");
 
   const palette = await extractKMeansPalette(imagePath);
 
@@ -57,13 +58,29 @@ async function main() {
     })),
   );
 
-  if (candidates[0]) {
-    console.log("\nPrimary CSS vars");
-    console.log(
-      Object.entries(candidates[0].vars)
-        .map(([key, value]) => `${key}: ${value};`)
-        .join("\n"),
-    );
+  const primary = resolveThemeCandidate(candidates);
+
+  if (!primary) {
+    console.log("No theme candidate found.");
+    return;
   }
+
+  console.log("\nPrimary theme candidate");
+  console.table([
+    {
+      type: primary.type,
+      family: primary.family,
+      sourceHex: primary.sourceHex,
+      baseHex: primary.baseHex,
+      confidence: primary.confidence.toFixed(4),
+    },
+  ]);
+
+  console.log("\nPrimary CSS vars");
+  console.log(
+    Object.entries(primary.vars)
+      .map(([key, value]) => `${key}: ${value};`)
+      .join("\n"),
+  );
 }
 main();

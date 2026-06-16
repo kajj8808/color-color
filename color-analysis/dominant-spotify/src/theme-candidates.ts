@@ -10,7 +10,12 @@ import {
 } from "./color-space";
 import { PaletteSwatch } from "./palette";
 
-export type ThemeCandidateType = "neutralized-muted" | "chromatic";
+const DEFAULT_NEUTRAL_BASE_GRAY = 0x53; // #535353
+
+export type ThemeCandidateType =
+  | "neutralized-muted"
+  | "chromatic"
+  | "neutral-fallback";
 
 export type ThemeFamily =
   | "red"
@@ -158,6 +163,39 @@ function createNeutralSpotifyVars(baseGray: number) {
   };
 }
 
+function createNeutralFallbackCandidate(
+  palette: PaletteSwatch[],
+): ThemeCandidate {
+  const baseGray = DEFAULT_NEUTRAL_BASE_GRAY; // 0x53 = #535353
+  const baseColor = gray(baseGray);
+
+  const sourceSwatches = palette.slice(0, Math.min(3, palette.length));
+
+  const sourceColor =
+    sourceSwatches.length > 0
+      ? weightedAverageColor(sourceSwatches)
+      : baseColor;
+
+  return {
+    type: "neutral-fallback",
+    family: "neutral",
+
+    sourceColor,
+    sourceHex: toHexRgb(sourceColor),
+    sourceHexes: sourceSwatches.map((swatch) => swatch.hex),
+
+    baseColor,
+    baseHex: toHexRgb(baseColor),
+
+    confidence: 0.1,
+
+    vars: createNeutralSpotifyVars(baseGray),
+
+    reason:
+      "No warm-muted or chromatic candidate found; fallback to Spotify default neutral gray theme.",
+  };
+}
+
 function getFamilyFromHue(hue: number, saturation: number): ThemeFamily {
   if (saturation < 0.08) return "neutral";
 
@@ -199,6 +237,22 @@ function isChromaticSource(swatch: PaletteSwatch) {
 function mapSourceToChromaticBase(source: RGB): RGB {
   const hsl = rgbToHsl(source);
 
+  if (shouldUseStrongRedMapping(source)) {
+    return hslToRgb({
+      h: hsl.h - 6,
+      s: Math.min(0.86, Math.max(0.72, hsl.s * 1.3)),
+      l: Math.min(0.34, Math.max(0.3, hsl.l * 0.85)),
+    });
+  }
+
+  if (shouldUseDarkBlueMapping(source)) {
+    return hslToRgb({
+      h: hsl.h - 3,
+      s: Math.min(0.65, Math.max(0.55, hsl.s * 1.8)),
+      l: 0.22,
+    });
+  }
+
   /**
    * 분석 결과? spotify 2026 스타일은 대체로 어두운 영역으로 눌리게 됩니다.
    *
@@ -218,10 +272,77 @@ function mapSourceToChromaticBase(source: RGB): RGB {
   return hslToRgb({ h: hsl.h, s: targetSaturation, l: targetLightness });
 }
 
+function createRedToneFromBase(base: RGB, lightnessRatio: number): RGB {
+  const hsl = rgbToHsl(base);
+
+  return hslToRgb({
+    h: 0,
+    s: 1,
+    l: clamp01(hsl.l * lightnessRatio),
+  });
+}
+
 /** Chromatic Spotify 변수들을 생성하는 함수
  * baseColor가 정해졌을 때 나머지 token을 만듭니다.
  */
-function createChromaticSpotifyVars(baseColor: RGB) {
+function buildChromaticVars(input: {
+  baseColor: RGB;
+  cinemaTo: RGB;
+
+  backgroundHighlight: RGB;
+  backgroundPress: RGB;
+
+  backgroundTintedBase: RGB;
+  backgroundTintedHighlight: RGB;
+  backgroundTintedPress: RGB;
+
+  textSubdued: RGB;
+}) {
+  return {
+    "--cinema-mode-bg-color-from": toHexRgba(input.baseColor),
+    "--cinema-mode-bg-color-to": toHexRgba(input.cinemaTo),
+
+    "--background-base": toHexRgba(input.baseColor),
+    "--background-highlight": toHexRgb(input.backgroundHighlight),
+    "--background-press": toHexRgb(input.backgroundPress),
+
+    "--background-elevated-base": toHexRgba(input.baseColor),
+    "--background-elevated-highlight": toHexRgb(input.backgroundHighlight),
+    "--background-elevated-press": toHexRgb(input.backgroundPress),
+
+    "--background-tinted-base": toHexRgba(input.backgroundTintedBase),
+    "--background-tinted-highlight": toHexRgb(input.backgroundTintedHighlight),
+    "--background-tinted-press": toHexRgb(input.backgroundTintedPress),
+
+    "--text-base": "#FFFFFFFF",
+    "--text-subdued": toHexRgba(input.textSubdued),
+
+    "--text-bright-accent": "#FFFFFFFF",
+    "--text-negative": "#FFFFFFFF",
+    "--text-warning": "#FFFFFFFF",
+    "--text-positive": "#FFFFFFFF",
+    "--text-announcement": "#FFFFFFFF",
+
+    "--essential-base": "#FFFFFFFF",
+    "--essential-subdued": toHexRgba(input.textSubdued),
+    "--essential-bright-accent": "#FFFFFFFF",
+    "--essential-negative": "#FFFFFFFF",
+    "--essential-warning": "#FFFFFFFF",
+    "--essential-positive": "#FFFFFFFF",
+    "--essential-announcement": "#FFFFFFFF",
+
+    "--decorative-base": "#FFFFFFFF",
+    "--decorative-subdued": toHexRgba(input.textSubdued),
+  };
+}
+
+function createChromaticSpotifyVars(
+  baseColor: RGB,
+  options: {
+    useRedSpecial?: boolean;
+    useDarkBlueSpecial?: boolean;
+  } = {},
+) {
   const hsl = rgbToHsl(baseColor);
 
   const backgroundHighlight = hslToRgb({
@@ -236,75 +357,140 @@ function createChromaticSpotifyVars(baseColor: RGB) {
     l: clamp01(hsl.l - 0.1),
   });
 
-  const cinemaTo = hslToRgb({
-    h: hsl.h,
-    s: clamp01(hsl.s * 1.15),
-    l: clamp01(hsl.l - 0.07),
+  /**
+   * image_5 같은 dark navy 계열 전용.
+   * 이 분기는 반드시 useDarkBlueSpecial일 때만 타야 합니다.
+   */
+  if (options.useDarkBlueSpecial) {
+    const cinemaTo = baseColor;
+
+    const backgroundTintedBase = hslToRgb({
+      h: hsl.h,
+      s: 0.38,
+      l: 0.359,
+    });
+
+    const backgroundTintedHighlight = hslToRgb({
+      h: hsl.h,
+      s: 0.38,
+      l: 0.308,
+    });
+
+    const backgroundTintedPress = hslToRgb({
+      h: hsl.h,
+      s: 0.38,
+      l: 0.259,
+    });
+
+    const textSubdued = hslToRgb({
+      h: hsl.h,
+      s: 1,
+      l: 0.845,
+    });
+
+    return buildChromaticVars({
+      baseColor,
+      cinemaTo,
+      backgroundHighlight,
+      backgroundPress,
+      backgroundTintedBase,
+      backgroundTintedHighlight,
+      backgroundTintedPress,
+      textSubdued,
+    });
+  }
+
+  function createChromaticCandidate(swatch: PaletteSwatch): ThemeCandidate {
+    const useRedSpecial = shouldUseStrongRedMapping(swatch.color);
+    const useDarkBlueSpecial = shouldUseDarkBlueMapping(swatch.color);
+
+    const baseColor = mapSourceToChromaticBase(swatch.color);
+    const baseHsl = rgbToHsl(baseColor);
+
+    return {
+      type: "chromatic",
+      family: getFamilyFromHue(baseHsl.h, baseHsl.s),
+
+      sourceColor: swatch.color,
+      sourceHex: swatch.hex,
+      sourceHexes: [swatch.hex],
+
+      baseColor,
+      baseHex: toHexRgb(baseColor),
+
+      confidence: swatch.score,
+
+      vars: createChromaticSpotifyVars(baseColor, {
+        useRedSpecial,
+        useDarkBlueSpecial,
+      }),
+
+      reason: "chromatic swatch converted to Spotify dark cinema theme",
+    };
+  }
+
+  const redLike = options.useRedSpecial && isRedLikeHue(hsl.h);
+
+  const cinemaTo = redLike
+    ? createRedToneFromBase(baseColor, 0.607)
+    : hslToRgb({
+        h: hsl.h,
+        s: clamp01(hsl.s * 1.15),
+        l: clamp01(hsl.l - 0.07),
+      });
+
+  const backgroundTintedBase = redLike
+    ? createRedToneFromBase(baseColor, 0.565)
+    : hslToRgb({
+        h: hsl.h,
+        s: clamp01(Math.max(hsl.s, 0.35) * 1.35),
+        l: clamp01(hsl.l * 0.58),
+      });
+
+  const backgroundTintedHighlight = redLike
+    ? createRedToneFromBase(baseColor, 0.416)
+    : hslToRgb({
+        h: hsl.h,
+        s: clamp01(Math.max(hsl.s, 0.35) * 1.35),
+        l: clamp01(hsl.l * 0.45),
+      });
+
+  const backgroundTintedPress = redLike
+    ? createRedToneFromBase(baseColor, 0.261)
+    : hslToRgb({
+        h: hsl.h,
+        s: clamp01(Math.max(hsl.s, 0.35) * 1.35),
+        l: clamp01(hsl.l * 0.32),
+      });
+
+  const textSubdued = redLike
+    ? hslToRgb({
+        h: hsl.h + 4,
+        s: 1,
+        l: 0.843,
+      })
+    : hslToRgb({
+        h: hsl.h,
+        s: clamp01(Math.max(hsl.s, 0.2) * 1.25),
+        l: 0.86,
+      });
+
+  return buildChromaticVars({
+    baseColor,
+    cinemaTo,
+    backgroundHighlight,
+    backgroundPress,
+    backgroundTintedBase,
+    backgroundTintedHighlight,
+    backgroundTintedPress,
+    textSubdued,
   });
-
-  const backgroundTintedBase = hslToRgb({
-    h: hsl.h,
-    s: clamp01(Math.max(hsl.s, 0.35) * 1.35),
-    l: clamp01(hsl.l * 0.58),
-  });
-
-  const backgroundTintedHighlight = hslToRgb({
-    h: hsl.h,
-    s: clamp01(Math.max(hsl.s, 0.35) * 1.35),
-    l: clamp01(hsl.l * 0.45),
-  });
-
-  const backgroundTintedPress = hslToRgb({
-    h: hsl.h,
-    s: clamp01(Math.max(hsl.s, 0.35) * 1.35),
-    l: clamp01(hsl.l * 0.32),
-  });
-
-  const textSubdued = hslToRgb({
-    h: hsl.h,
-    s: clamp01(Math.max(hsl.s, 0.2) * 1.25),
-    l: 0.86,
-  });
-
-  return {
-    "--cinema-mode-bg-color-from": toHexRgba(baseColor),
-    "--cinema-mode-bg-color-to": toHexRgba(cinemaTo),
-
-    "--background-base": toHexRgba(baseColor),
-    "--background-highlight": toHexRgb(backgroundHighlight),
-    "--background-press": toHexRgb(backgroundPress),
-
-    "--background-elevated-base": toHexRgba(baseColor),
-    "--background-elevated-highlight": toHexRgb(backgroundHighlight),
-    "--background-elevated-press": toHexRgb(backgroundPress),
-
-    "--background-tinted-base": toHexRgba(backgroundTintedBase),
-    "--background-tinted-highlight": toHexRgb(backgroundTintedHighlight),
-    "--background-tinted-press": toHexRgb(backgroundTintedPress),
-
-    "--text-base": "#FFFFFFFF",
-    "--text-subdued": toHexRgba(textSubdued),
-
-    "--text-bright-accent": "#FFFFFFFF",
-    "--text-negative": "#FFFFFFFF",
-    "--text-warning": "#FFFFFFFF",
-    "--text-positive": "#FFFFFFFF",
-    "--text-announcement": "#FFFFFFFF",
-
-    "--essential-base": "#FFFFFFFF",
-    "--essential-subdued": toHexRgba(textSubdued),
-    "--essential-bright-accent": "#FFFFFFFF",
-    "--essential-negative": "#FFFFFFFF",
-    "--essential-warning": "#FFFFFFFF",
-    "--essential-positive": "#FFFFFFFF",
-    "--essential-announcement": "#FFFFFFFF",
-
-    "--decorative-base": "#FFFFFFFF",
-    "--decorative-subdued": toHexRgba(textSubdued),
-  };
 }
 
 function createChromaticCandidate(swatch: PaletteSwatch): ThemeCandidate {
+  const useRedSpecial = shouldUseStrongRedMapping(swatch.color);
+  const useDarkBlueSpecial = shouldUseDarkBlueMapping(swatch.color);
+
   const baseColor = mapSourceToChromaticBase(swatch.color);
   const baseHsl = rgbToHsl(baseColor);
 
@@ -321,7 +507,10 @@ function createChromaticCandidate(swatch: PaletteSwatch): ThemeCandidate {
 
     confidence: swatch.score,
 
-    vars: createChromaticSpotifyVars(baseColor),
+    vars: createChromaticSpotifyVars(baseColor, {
+      useRedSpecial,
+      useDarkBlueSpecial,
+    }),
 
     reason: "chromatic swatch converted to Spotify dark cinema theme",
   };
@@ -391,5 +580,31 @@ export function createThemeCandidatesFromPalette(
 
   conditions.push(...chromaticCandidates);
 
+  if (conditions.length === 0) {
+    conditions.push(createNeutralFallbackCandidate(palette));
+  }
+
   return conditions.sort((a, b) => b.confidence - a.confidence);
+}
+
+function isRedLikeHue(hue: number) {
+  return hue >= 345 || hue <= 25;
+}
+
+function shouldUseStrongRedMapping(source: RGB) {
+  const hsl = rgbToHsl(source);
+  const y = luma(source);
+
+  return isRedLikeHue(hsl.h) && hsl.s >= 0.42 && y <= 150;
+}
+
+function isBlueLikeHue(hue: number) {
+  return hue >= 195 && hue <= 235;
+}
+
+function shouldUseDarkBlueMapping(source: RGB) {
+  const hsl = rgbToHsl(source);
+  const y = luma(source);
+
+  return isBlueLikeHue(hsl.h) && hsl.l <= 0.25 && hsl.s >= 0.25 && y <= 80;
 }
