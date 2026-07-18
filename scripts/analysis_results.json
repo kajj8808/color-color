@@ -1,0 +1,253 @@
+[
+  {
+    "title": "Dai Dai",
+    "artist": "Shakira",
+    "pass": false,
+    "deltaE": "25.44",
+    "releaseYear": "2026",
+    "genres": [
+      "latin pop"
+    ],
+    "originalTruth": "rgb(100, 2, 34)"
+  },
+  {
+    "title": "Wonderwall - Remastered",
+    "artist": "Oasis",
+    "pass": false,
+    "deltaE": "6.23",
+    "releaseYear": "2014",
+    "genres": [
+      "britpop",
+      "madchester"
+    ],
+    "originalTruth": "rgb(48, 54, 55)"
+  },
+  {
+    "title": "Billie Jean",
+    "artist": "Michael Jackson",
+    "pass": false,
+    "deltaE": "8.71",
+    "releaseYear": "1982",
+    "genres": [],
+    "originalTruth": "rgb(35, 57, 57)"
+  },
+  {
+    "title": "Beauty And A Beat",
+    "artist": "Justin Bieber",
+    "pass": false,
+    "deltaE": "41.64",
+    "releaseYear": "2012",
+    "genres": [],
+    "originalTruth": "rgb(46, 119, 208)"
+  },
+  {
+    "title": "hate that i made you love me",
+    "artist": "Ariana Grande",
+    "pass": false,
+    "deltaE": "33.70",
+    "releaseYear": "2026",
+    "genres": [
+      "pop"
+    ],
+    "originalTruth": "rgb(46, 119, 208)"
+  },
+  {
+    "title": "Earrings",
+    "artist": "Malcolm Todd",
+    "pass": true,
+    "deltaE": "4.98",
+    "releaseYear": "2024",
+    "genres": [],
+    "originalTruth": "rgb(101, 0, 17)"
+  },
+  {
+    "title": "Babydoll",
+    "artist": "Dominic Fike",
+    "pass": true,
+    "deltaE": "5.75",
+    "releaseYear": "2018",
+    "genres": [],
+    "originalTruth": "rgb(68, 48, 48)"
+  },
+  {
+    "title": "SWIM",
+    "artist": "BTS",
+    "pass": true,
+    "deltaE": "5.88",
+    "releaseYear": "2026",
+    "genres": [
+      "k-pop"
+    ],
+    "originalTruth": "rgb(101, 0, 0)"
+  },
+  {
+    "title": "stupid song",
+    "artist": "Olivia Rodrigo",
+    "pass": true,
+    "deltaE": "1.05",
+    "releaseYear": "2026",
+    "genres": [],
+    "originalTruth": "rgb(35, 56, 63)"
+  },
+  {
+    "title": "The One That Got Away",
+    "artist": "Katy Perry",
+    "pass": false,
+    "deltaE": "6.95",
+    "releaseYear": "2010",
+    "genres": [
+      "pop"
+    ],
+    "originalTruth": "rgb(45, 51, 85)"
+  },
+  {
+    "title": "drop dead",
+    "artist": "Olivia Rodrigo",
+    "pass": true,
+    "deltaE": "1.05",
+    "releaseYear": "2026",
+    "genres": [],
+    "originalTruth": "rgb(35, 56, 63)"
+  },
+  {
+    "title": "the cure",
+    "artist": "Olivia Rodrigo",
+    "pass": true,
+    "deltaE": "1.88",
+    "releaseYear": "2026",
+    "genres": [],
+    "originalTruth": "rgb(35, 56, 63)"
+  },
+  {
+    "title": "Self Aware",
+    "artist": "Temper City",
+    "pass": false,
+    "deltaE": "32.82",
+    "releaseYear": "2026",
+    "genres": [],
+    "originalTruth": "rgb(101, 0, 0)"
+  },
+  {
+    "title": "Beat It",
+    "artist": "Michael Jackson",
+    "pass": false,
+    "deltaE": "8.71",
+    "releaseYear": "1982",
+    "genres": [],
+    "originalTruth": "rgb(35, 57, 57)"
+  },
+  {
+    "title": "Choosin' Texas",
+    "artist": "Ella Langley",
+    "pass": false,
+    "deltaE": "6.92",
+    "releaseYear": "2026",
+    "genres": [
+      "country"
+    ],
+    "originalTruth": "rgb(78, 45, 0)"
+  },
+  {
+    "title": "back to friends",
+    "artist": "sombr",
+    "pass": false,
+    "deltaE": "6.68",
+    "releaseYear": "2025",
+    "genres": [],
+    "originalTruth": "rgb(101, 0, 0)"
+  },
+  {
+    "title": "Iris",
+    "artist": "The Goo Goo Dolls",
+    "pass": true,
+    "deltaE": "1.20",
+    "releaseYear": "1998",
+    "genres": [],
+    "originalTruth": "rgb(101, 0, 0)"
+  },
+  {
+    "title": "Sesi Potret",
+    "artist": "eńau",
+    "pass": true,
+    "deltaE": "2.83",
+    "releaseYear": "2026",
+    "genres": [
+      "indonesian indie",
+      "indonesian pop"
+    ],
+    "originalTruth": "rgb(100, 4, 35)"
+  },
+  {
+    "title": "Man I Need",
+    "artist": "Olivia Dean",
+    "pass": false,
+    "deltaE": "33.70",
+    "releaseYear": "2025",
+    "genres": [
+      "pop soul"
+    ],
+    "originalTruth": "rgb(46, 119, 208)"
+  },
+  {
+    "title": "End of Beginning",
+    "artist": "Djo",
+    "pass": false,
+    "deltaE": "9.57",
+    "releaseYear": "2022",
+    "genres": [],
+    "originalTruth": "rgb(0, 50, 106)"
+  },
+  {
+    "title": "DtMF",
+    "artist": "Bad Bunny",
+    "pass": true,
+    "deltaE": "0.90",
+    "releaseYear": "2025",
+    "genres": [
+      "reggaeton",
+      "trap latino",
+      "latin",
+      "urbano latino"
+    ],
+    "originalTruth": "rgb(37, 59, 0)"
+  },
+  {
+    "title": "Risk It All",
+    "artist": "Bruno Mars",
+    "pass": false,
+    "deltaE": "33.70",
+    "releaseYear": "2026",
+    "genres": [],
+    "originalTruth": "rgb(46, 119, 208)"
+  },
+  {
+    "title": "Love Me Not",
+    "artist": "Ravyn Lenae",
+    "pass": false,
+    "deltaE": "6.85",
+    "releaseYear": "2024",
+    "genres": [
+      "alternative r&b",
+      "indie soul"
+    ],
+    "originalTruth": "rgb(80, 40, 32)"
+  },
+  {
+    "title": "The Fate of Ophelia",
+    "artist": "Taylor Swift",
+    "pass": true,
+    "deltaE": "1.40",
+    "releaseYear": "2025",
+    "genres": [],
+    "originalTruth": "rgb(0, 60, 41)"
+  },
+  {
+    "title": "honeybee",
+    "artist": "Olivia Rodrigo",
+    "pass": true,
+    "deltaE": "1.88",
+    "releaseYear": "2026",
+    "genres": [],
+    "originalTruth": "rgb(35, 56, 63)"
+  }
+]
