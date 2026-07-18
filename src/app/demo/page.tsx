@@ -97,7 +97,7 @@ export default function DemoPage() {
                   >
                     <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest drop-shadow-md text-right">Primary</span>
                     <span className="font-mono text-xs text-white drop-shadow-md text-right">{item.calcColorPrimary}</span>
-                    {Number(item.deltaE1) <= 10.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
+                    {Number(item.deltaE1) <= 6.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
                   </div>
                   {/* Candidate 2 */}
                   <div 
@@ -106,7 +106,7 @@ export default function DemoPage() {
                   >
                     <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest drop-shadow-md text-right">Secondary</span>
                     <span className="font-mono text-xs text-white drop-shadow-md text-right">{item.calcColorSecondary}</span>
-                    {Number(item.deltaE2) <= 10.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
+                    {Number(item.deltaE2) <= 6.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
                   </div>
                 </div>
 
@@ -153,8 +153,18 @@ export default function DemoPage() {
                       SCRAPING ERROR
                     </div>
                   ) : (
-                    <div className={`px-2 py-1 rounded text-xs font-bold ${Number(item.bestDeltaE) <= 10.0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {Number(item.bestDeltaE) <= 10.0 ? 'MATCH (dE < 10)' : 'MISMATCH'}
+                    <div className={`px-2 py-1 rounded text-xs font-bold ${
+                      Number(item.bestDeltaE) <= 6.0 
+                        ? 'bg-green-500/20 text-green-400' 
+                        : Number(item.bestDeltaE) <= 10.0
+                        ? 'bg-yellow-500/20 text-yellow-400'
+                        : 'bg-red-500/20 text-red-400'
+                    }`}>
+                      {Number(item.bestDeltaE) <= 6.0 
+                        ? 'MATCH (dE < 6)' 
+                        : Number(item.bestDeltaE) <= 10.0
+                        ? 'SIMILAR (dE < 10)'
+                        : 'MISMATCH'}
                     </div>
                   )}
                 </div>
