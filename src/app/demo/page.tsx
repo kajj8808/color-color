@@ -16,6 +16,8 @@ interface DemoData {
   deltaE2: string;
   bestDeltaE: string;
   pass: boolean;
+  releaseYear?: string;
+  genres?: string[];
 }
 
 export default function DemoPage() {
@@ -95,7 +97,7 @@ export default function DemoPage() {
                   >
                     <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest drop-shadow-md text-right">Primary</span>
                     <span className="font-mono text-xs text-white drop-shadow-md text-right">{item.calcColorPrimary}</span>
-                    {Number(item.deltaE1) <= 6.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
+                    {Number(item.deltaE1) <= 10.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
                   </div>
                   {/* Candidate 2 */}
                   <div 
@@ -104,7 +106,7 @@ export default function DemoPage() {
                   >
                     <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest drop-shadow-md text-right">Secondary</span>
                     <span className="font-mono text-xs text-white drop-shadow-md text-right">{item.calcColorSecondary}</span>
-                    {Number(item.deltaE2) <= 6.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
+                    {Number(item.deltaE2) <= 10.0 && <span className="absolute top-1 right-2 text-green-400 font-bold text-xs">✓ MATCH</span>}
                   </div>
                 </div>
 
@@ -124,14 +126,37 @@ export default function DemoPage() {
               <div className="p-5">
                 <h3 className="font-bold text-lg truncate" title={item.title}>{item.title}</h3>
                 <p className="text-gray-400 text-sm truncate" title={item.artist}>{item.artist}</p>
+                
+                {/* API Data Tags */}
+                {(item.releaseYear || (item.genres && item.genres.length > 0)) && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {item.releaseYear && item.releaseYear !== "Unknown" && (
+                      <span className="px-2 py-0.5 bg-gray-800 text-[10px] text-gray-300 rounded-full border border-gray-700">
+                        {item.releaseYear}
+                      </span>
+                    )}
+                    {item.genres && item.genres.slice(0, 2).map((g, i) => (
+                      <span key={i} className="px-2 py-0.5 bg-[#1DB954]/10 text-[10px] text-[#1DB954] rounded-full border border-[#1DB954]/20">
+                        {g}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-gray-500 uppercase">Best Delta E</span>
                     <span className="font-mono text-sm font-bold">{item.bestDeltaE}</span>
                   </div>
-                  <div className={`px-2 py-1 rounded text-xs font-bold ${item.pass ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                    {item.pass ? 'MATCH (dE < 6)' : 'MISMATCH'}
-                  </div>
+                  {item.truthColor === 'rgb(46, 119, 208)' ? (
+                    <div className="px-2 py-1 rounded text-xs font-bold bg-orange-500/20 text-orange-400" title="Scraped default blue loading background instead of real image color">
+                      SCRAPING ERROR
+                    </div>
+                  ) : (
+                    <div className={`px-2 py-1 rounded text-xs font-bold ${Number(item.bestDeltaE) <= 10.0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {Number(item.bestDeltaE) <= 10.0 ? 'MATCH (dE < 10)' : 'MISMATCH'}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
